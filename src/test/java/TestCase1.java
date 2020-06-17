@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static utiles.Driver.*;
 
@@ -17,53 +18,37 @@ public class TestCase1 {
     @BeforeMethod
     public void setUp()
     {
-        driver=getDriver("chrome");
+
+        driver=getDriver("chromeHeadless");
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
     }
-
-
-
 
     @Test
     public void selectWeekDays() throws InterruptedException {
         Random n= new Random();
         driver.get("http://samples.gwtproject.org/samples/Showcase/Showcase.html#!CwCheckBox");
-        Thread.sleep(2000);
         List<WebElement> checkBoxes = driver.findElements(By.xpath("//input[@type='checkbox']"));
+        List<WebElement> labels = driver.findElements(By.xpath("//input[@type='checkbox']/following-sibling::*"));
 
-        Thread.sleep(1000);
-        List<WebElement> labels = driver.findElements(By.xpath("//label"));
-        Thread.sleep(1000);
-        //System.out.println("Size of the list "+checkBoxes.size());
-
-
-
-        Thread.sleep(1000);
-        checkBoxes.get(1).click();
-        Thread.sleep(1000);
-       int count=0;
-       while(count<=3)
+       int count=0,l=0;
+       while(count<3)
         {
-            int l=n.nextInt();
-
-            if(labels.get(l).getText()=="Friday")
-            {
-                count++;
-            }
-            Thread.sleep(500);
-            checkBoxes.get(l).click();
-            Thread.sleep(500);
-            System.out.println(labels.get(l).getText());
-            Thread.sleep(500);
-            checkBoxes.get(l).click();
-            Thread.sleep(500);
-
+            l=n.nextInt(7);
+           if(checkBoxes.get(l).isEnabled())
+           {
+             checkBoxes.get(l).click();
+             System.out.println(labels.get(l).getText());
+             checkBoxes.get(l).click();
+             if(labels.get(l).getText().equals("Friday"))
+                 count++;
+          }
 
         }
     }
 
     @AfterMethod
-    public void terarDown()
+    public void tareDown()
     {
         closeDriver();
     }
